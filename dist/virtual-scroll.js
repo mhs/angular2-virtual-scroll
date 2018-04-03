@@ -50,6 +50,9 @@ var VirtualScrollComponent = (function () {
         this.removeParentEventHandlers();
     };
     VirtualScrollComponent.prototype.ngOnChanges = function (changes) {
+        if (changes.viewHeight) {
+            this.viewHeight = changes.viewHeight.currentValue;
+        }
         this.previousStart = undefined;
         this.previousEnd = undefined;
         var items = changes.items || {};
@@ -157,7 +160,7 @@ var VirtualScrollComponent = (function () {
         var items = this.items || [];
         var itemCount = items.length;
         var viewWidth = el.clientWidth - this.scrollbarWidth;
-        var viewHeight = el.clientHeight - this.scrollbarHeight;
+        var viewHeight = this.viewHeight || el.clientHeight - this.scrollbarHeight;
         var contentDimensions;
         if (this.childWidth == undefined || this.childHeight == undefined) {
             var content = this.contentElementRef.nativeElement;
@@ -239,7 +242,7 @@ var VirtualScrollComponent = (function () {
         if (start !== this.previousStart || end !== this.previousEnd || forceViewportUpdate === true) {
             this.zone.run(function () {
                 // update the scroll list
-                var _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position. 
+                var _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position.
                 _this.viewPortItems = items.slice(start, _end);
                 _this.update.emit(_this.viewPortItems);
                 // emit 'start' event
@@ -286,6 +289,7 @@ var VirtualScrollComponent = (function () {
         'items': [{ type: core_1.Input },],
         'scrollbarWidth': [{ type: core_1.Input },],
         'scrollbarHeight': [{ type: core_1.Input },],
+        'viewHeight': [{ type: core_1.Input },],
         'childWidth': [{ type: core_1.Input },],
         'childHeight': [{ type: core_1.Input },],
         'bufferAmount': [{ type: core_1.Input },],

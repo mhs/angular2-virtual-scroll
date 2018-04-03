@@ -67,6 +67,9 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   scrollbarHeight: number;
 
   @Input()
+  viewHeight: number | undefined;
+
+  @Input()
   childWidth: number;
 
   @Input()
@@ -153,6 +156,10 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes.viewHeight) {
+      this.viewHeight = changes.viewHeight.currentValue;
+    }
+
     this.previousStart = undefined;
     this.previousEnd = undefined;
     const items = (changes as any).items || {};
@@ -181,14 +188,14 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let animationRequest;
 
     if (this.currentTween != undefined) this.currentTween.stop()
-	
+
     // totally disable animate
     if(!this.scrollAnimationTime){
         el.scrollTop = scrollTop;
         return;
-    }  
-	  
-	  
+    }
+
+
     this.currentTween = new tween.Tween({ scrollTop: el.scrollTop })
       .to({ scrollTop }, this.scrollAnimationTime)
       .easing(tween.Easing.Quadratic.Out)
@@ -268,7 +275,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
     let items = this.items || [];
     let itemCount = items.length;
     let viewWidth = el.clientWidth - this.scrollbarWidth;
-    let viewHeight = el.clientHeight - this.scrollbarHeight;
+    const viewHeight = this.viewHeight || el.clientHeight - this.scrollbarHeight;
 
     let contentDimensions;
     if (this.childWidth == undefined || this.childHeight == undefined) {
@@ -361,7 +368,7 @@ export class VirtualScrollComponent implements OnInit, OnChanges, OnDestroy {
 
       this.zone.run(() => {
         // update the scroll list
-        let _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position. 
+        let _end = end >= 0 ? end : 0; // To prevent from accidentally selecting the entire array with a negative 1 (-1) in the end position.
         this.viewPortItems = items.slice(start, _end);
         this.update.emit(this.viewPortItems);
 
